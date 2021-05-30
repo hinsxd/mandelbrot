@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background-color: #2b2b2b;
+  color: #dedede;
+}
+
+.control-column {
+  flex: 0 0 250px;
+  @apply flex flex-col p-4;
+}
+
+.control-item {
+  @apply flex flex-col mb-3;
+  label {
+    @apply mb-1;
+  }
+}
