@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useGetSet } from "react-use";
 
 const getCoord = (i: number, mod: number, radius: number): [number, number] => {
@@ -10,14 +10,16 @@ const getCoord = (i: number, mod: number, radius: number): [number, number] => {
 
 const IndexPage = () => {
   const [radius, setRadius] = useGetSet(300);
-  const [multiplier, setMultiplier] = useGetSet(2);
-  const [mod, setMod] = useGetSet(10);
+  const [multiplier, setMultiplier] = useGetSet(3);
+  const [mod, setMod] = useGetSet(50);
   const [showLabel, setShowLabel] = useGetSet(true);
+  const [animateMultiplier, setAnimateMultiplier] = useGetSet(false);
+  const [animateMod, setAnimateMod] = useGetSet(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     let requestId: number;
-
+    let lastCalledTime: number;
     const getPixelRatio = (context: any) => {
       var backingStore =
         context.backingStorePixelRatio ||
@@ -30,7 +32,20 @@ const IndexPage = () => {
       return (window.devicePixelRatio || 1) / backingStore;
     };
 
-    const draw = () => {
+    const draw: FrameRequestCallback = (time) => {
+      if (!lastCalledTime) lastCalledTime = time;
+      const delta = time - lastCalledTime;
+
+      if (delta > 50) {
+        if (animateMultiplier()) {
+          setMultiplier(
+            parseFloat((((multiplier() + 0.01 - 2) % 100) + 2).toFixed(2))
+          );
+        }
+        if (animateMod()) {
+          setMod(parseFloat((((mod() + 0.05 - 1) % 200) + 1).toFixed(2)));
+        }
+      }
       const canvas = canvasRef.current;
       if (!canvas) return;
 
@@ -117,7 +132,7 @@ const IndexPage = () => {
         const lines = lineMap.get(smaller)!;
         lines.add(larger);
         lineMap.set(smaller, lines);
-      };
+      }
 
       for (const [startIndex, endIndexes] of lineMap) {
         const initialCoord = getCoord(startIndex, mod(), scaledRadius);
@@ -130,7 +145,7 @@ const IndexPage = () => {
       ctx.stroke();
       requestId = requestAnimationFrame(draw);
     };
-    draw();
+    requestId = requestAnimationFrame(draw);
     return () => {
       cancelAnimationFrame(requestId);
     };
@@ -150,25 +165,43 @@ const IndexPage = () => {
         </div>
         <div className="control-item">
           <label>Multiplier: {multiplier()}</label>
-          <input
-            type="range"
-            min={2}
-            max={100}
-            step={0.1}
-            value={multiplier()}
-            onChange={(e) => setMultiplier(parseFloat(e.target.value))}
-          />
+          <div className="flex">
+            <input
+              className="flex-1"
+              type="range"
+              min={2}
+              max={100}
+              step={0.1}
+              value={multiplier()}
+              onChange={(e) => setMultiplier(parseFloat(e.target.value))}
+            />
+            <button
+              className="w-1/3"
+              onClick={() => setAnimateMultiplier(!animateMultiplier())}
+            >
+              {animateMultiplier() ? "Pause" : "Play"}
+            </button>
+          </div>
         </div>
         <div className="control-item">
           <label>Mod: {mod()}</label>
-          <input
-            type="range"
-            min={1}
-            max={200}
-            step={0.1}
-            value={mod()}
-            onChange={(e) => setMod(parseFloat(e.target.value))}
-          />
+          <div className="flex">
+            <input
+              className="flex-1"
+              type="range"
+              min={1}
+              max={200}
+              step={0.1}
+              value={mod()}
+              onChange={(e) => setMod(parseFloat(e.target.value))}
+            />
+            <button
+              className="w-1/3"
+              onClick={() => setAnimateMod(!animateMod())}
+            >
+              {animateMod() ? "Pause" : "Play"}
+            </button>
+          </div>
         </div>
         <div className="control-item">
           <label>Label?</label>
