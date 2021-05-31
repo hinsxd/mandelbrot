@@ -88,7 +88,7 @@ const IndexPage = () => {
 
       // Draw labels
       if (showLabel()) {
-        for (let i = 0; i < mod(); i++) {
+        for (let i = 0; i < mod(); i += mod() > 100 ? 5 : mod() > 50 ? 2 : 1) {
           const [xFactor, yFactor] = getCoord(
             i,
             mod(),
