@@ -49,16 +49,17 @@ const IndexPage = () => {
       canvas.style.width = `${width}px`;
       canvas.style.height = `${height}px`;
       ctx.strokeStyle = "#eeeeee";
-
       ctx.fillStyle = "#eeeeee";
+
       ctx.resetTransform();
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.translate(canvas.width / 2, canvas.height / 2);
+      // Draw outer circle
       ctx.beginPath();
       ctx.arc(0, 0, scaledRadius, 0, Math.PI * 2);
       ctx.stroke();
 
-
+      // Draw points
       for (let i = 0; i < mod(); i++) {
         const [xFactor, yFactor] = getCoord(i, mod(), scaledRadius);
         const x = xFactor;
@@ -69,15 +70,23 @@ const IndexPage = () => {
         ctx.fill();
       }
 
-      for (let i = 0; i < mod(); i++) {
-        const [xFactor, yFactor] = getCoord(i, mod(), scaledRadius + 15);
+      // Draw labels
+      if (showLabel()) {
+        for (let i = 0; i < mod(); i++) {
+          const [xFactor, yFactor] = getCoord(
+            i,
+            mod(),
+            scaledRadius + 30 - (mod() / 200) * 12
+          );
 
-        const textX = xFactor;
-        const textY = yFactor;
-        if (showLabel()) {
+          const textX = xFactor;
+          const textY = yFactor;
+
           ctx.save();
           ctx.textBaseline = "middle";
           ctx.textAlign = "center";
+          const fontsize = 24 - (mod() / 200) * 12;
+          ctx.font = `${fontsize}px Arial`;
           ctx.translate(textX, textY);
           // i: 0 -> mod / 2
           // angle: pi/2 -> -pi/2
@@ -95,18 +104,20 @@ const IndexPage = () => {
         let current = i;
         if (drawnSet.has(i)) continue;
         drawnSet.add(i);
+
+        const initialCoord = getCoord(i, mod(), scaledRadius);
+        ctx.moveTo(initialCoord[0], initialCoord[1]);
+
         while (current < mod()) {
           const next = current * multiplier();
-          const currentCoord = getCoord(current, mod(), scaledRadius);
-          const nextCoord = getCoord(next, mod(), scaledRadius);
 
-          if (currentCoord && nextCoord) {
-            ctx.moveTo(currentCoord[0], currentCoord[1]);
-            ctx.lineTo(nextCoord[0], nextCoord[1]);
-            ctx.stroke();
-          }
+          const nextCoord = getCoord(next, mod(), scaledRadius);
+          ctx.lineTo(nextCoord[0], nextCoord[1]);
+          ctx.moveTo(nextCoord[0], nextCoord[1]);
+
           current = next;
         }
+        ctx.stroke();
       }
       requestId = requestAnimationFrame(draw);
     };
