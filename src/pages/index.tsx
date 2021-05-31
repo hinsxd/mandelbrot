@@ -39,11 +39,11 @@ const IndexPage = () => {
       if (delta > 50) {
         if (animateMultiplier()) {
           setMultiplier(
-            parseFloat((((multiplier() + 0.01 - 2) % 100) + 2).toFixed(2))
+            parseFloat((((multiplier() + 0.01 - 2) % 98) + 2).toFixed(2))
           );
         }
         if (animateMod()) {
-          setMod(parseFloat((((mod() + 0.05 - 1) % 200) + 1).toFixed(2)));
+          setMod(parseFloat((((mod() + 0.05 - 1) % 199) + 1).toFixed(2)));
         }
       }
       const canvas = canvasRef.current;
