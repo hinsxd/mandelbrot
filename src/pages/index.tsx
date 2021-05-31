@@ -10,7 +10,7 @@ const getCoord = (i: number, mod: number, radius: number): [number, number] => {
 
 const IndexPage = () => {
   const [radius, setRadius] = useGetSet(300);
-  const [multiplier, setMultiplier] = useGetSet(2.5);
+  const [multiplier, setMultiplier] = useGetSet(2);
   const [mod, setMod] = useGetSet(10);
   const [showLabel, setShowLabel] = useGetSet(true);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -29,6 +29,7 @@ const IndexPage = () => {
         1;
       return (window.devicePixelRatio || 1) / backingStore;
     };
+
     const draw = () => {
       const canvas = canvasRef.current;
       if (!canvas) return;
@@ -98,27 +99,35 @@ const IndexPage = () => {
         }
       }
 
-      const drawnSet = new Set<number>();
+      const lineMap = new Map<number, Set<number>>();
 
-      for (let i = 1; i < mod(); i++) {
-        let current = i;
-        if (drawnSet.has(i)) continue;
-        drawnSet.add(i);
-
-        const initialCoord = getCoord(i, mod(), scaledRadius);
-        ctx.moveTo(initialCoord[0], initialCoord[1]);
-
-        while (current < mod()) {
-          const next = current * multiplier();
-
-          const nextCoord = getCoord(next, mod(), scaledRadius);
-          ctx.lineTo(nextCoord[0], nextCoord[1]);
-          ctx.moveTo(nextCoord[0], nextCoord[1]);
-
-          current = next;
+      for (let i = 1; i <= mod(); i++) {
+        let next = i * multiplier();
+        while (next >= mod()) {
+          next -= mod();
         }
-        ctx.stroke();
+        if (next === i) {
+          continue;
+        }
+        const smaller = next < i ? next : i;
+        const larger = next > i ? next : i;
+        if (!lineMap.has(smaller)) {
+          lineMap.set(smaller, new Set());
+        }
+        const lines = lineMap.get(smaller)!;
+        lines.add(larger);
+        lineMap.set(smaller, lines);
+      };
+
+      for (const [startIndex, endIndexes] of lineMap) {
+        const initialCoord = getCoord(startIndex, mod(), scaledRadius);
+        for (const endIndex of endIndexes) {
+          ctx.moveTo(initialCoord[0], initialCoord[1]);
+          const targetCoord = getCoord(endIndex, mod(), scaledRadius);
+          ctx.lineTo(targetCoord[0], targetCoord[1]);
+        }
       }
+      ctx.stroke();
       requestId = requestAnimationFrame(draw);
     };
     draw();
