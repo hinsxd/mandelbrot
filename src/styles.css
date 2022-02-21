@@ -8,14 +8,11 @@ body {
 }
 
 .control-column {
-  flex: 0 0 250px;
+ 
 
-  @apply flex flex-col p-4 items-stretch;
+  @apply flex p-4 ;
 }
 
 .control-item {
-  @apply flex flex-col mb-3;
-  label {
-    @apply mb-1;
-  }
+  @apply flex flex-col mb-3 space-y-1;
 }
