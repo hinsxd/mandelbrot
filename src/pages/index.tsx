@@ -258,7 +258,7 @@ const IndexPage = ({ stargazers }: { stargazers: number }) => {
             <span>Star</span>
           </span>
           <span className="flex space-x-1 items-center bg-white px-2 py-1">
-            {123}
+            {stargazers}
           </span>
         </a>
         <span className="text-gray-500 text-xs">
